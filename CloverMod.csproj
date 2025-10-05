@@ -78,23 +78,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AchievementCheat.cs" />
-    <Compile Include="FreeRestockCheat.cs" />
-    <Compile Include="SpinsRoundsCheat.cs" />
-    <Compile Include="TrippleSixCheat.cs" />
-    <Compile Include="CharmSlotCheat.cs" />
-    <Compile Include="CharmUnlockCheat.cs" />
-    <Compile Include="CloverTicketCheat.cs" />
-    <Compile Include="CoinCheat.cs" />
-    <Compile Include="EndingCounterCheat.cs" />
-    <Compile Include="InterestRateCheat.cs" />
-    <Compile Include="MultiplierCheat.cs" />
-    <Compile Include="PatternValueCheat.cs" />
-    <Compile Include="PhoneCheat.cs" />
-    <Compile Include="RedButtonCheat.cs" />
+    <Compile Include="Cheats\AchievementCheat.cs" />
+    <Compile Include="Cheats\FreeRestockCheat.cs" />
+    <Compile Include="Cheats\SpinsRoundsCheat.cs" />
+    <Compile Include="Cheats\TrippleSixCheat.cs" />
+    <Compile Include="Cheats\CharmSlotCheat.cs" />
+    <Compile Include="Cheats\CharmUnlockCheat.cs" />
+    <Compile Include="Cheats\CloverTicketCheat.cs" />
+    <Compile Include="Cheats\CoinCheat.cs" />
+    <Compile Include="Cheats\EndingCounterCheat.cs" />
+    <Compile Include="Cheats\InterestRateCheat.cs" />
+    <Compile Include="Cheats\MultiplierCheat.cs" />
+    <Compile Include="Cheats\PatternValueCheat.cs" />
+    <Compile Include="Cheats\PhoneCheat.cs" />
+    <Compile Include="Cheats\RedButtonCheat.cs" />
     <Compile Include="StarterPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SymbolChanceCheat.cs" />
+    <Compile Include="Cheats\SymbolChanceCheat.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
