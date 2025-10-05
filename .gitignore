@@ -1,0 +1,12 @@
+# Visual Studio / Build artifacts
+bin/
+obj/
+*.csproj.user
+*.suo
+*.pdb
+*.cache
+*.log
+
+# IDE-specific folders
+.vs/
+.vscode/

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloverMod", "CloverMod.csproj", "{5C243C19-0667-4230-A036-1B12C400DCED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5C243C19-0667-4230-A036-1B12C400DCED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C243C19-0667-4230-A036-1B12C400DCED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C243C19-0667-4230-A036-1B12C400DCED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C243C19-0667-4230-A036-1B12C400DCED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {12143CD1-D5D5-4C87-AE7D-9B1F2ECFDC48}
+	EndGlobalSection
+EndGlobal
