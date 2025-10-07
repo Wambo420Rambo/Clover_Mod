@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Reflection.Emit;
 using UnityEngine;
 
 namespace CloverMod
@@ -36,6 +35,8 @@ namespace CloverMod
         #region UI State
         private bool showUI = false;
         private Vector2 scrollPosition;
+        private bool waitingForKey = false;
+        private KeyCode openMenu = KeyCode.F2;
 
         // Cached styles (created once)
         private GUIStyle warningStyle;
@@ -72,6 +73,7 @@ namespace CloverMod
         private CursorLockMode previousLockState;
         private bool previousCursorVisible;
         private float desiredTimeScale = 1.0f;
+        private string openMenuKeyPref = "OpenMenuKey";
         #endregion
 
         private void Awake()
@@ -81,6 +83,16 @@ namespace CloverMod
             InitializeReflection();
             InitializeFoldouts();
             InitializeInputDictionaries();
+
+            // Load saved key from PlayerPrefs
+            if (PlayerPrefs.HasKey(openMenuKeyPref))
+            {
+                string savedKey = PlayerPrefs.GetString(openMenuKeyPref);
+                if (System.Enum.TryParse(savedKey, out KeyCode key))
+                {
+                    openMenu = key;
+                }
+            }
 
             desiredTimeScale = Time.timeScale;
         }
@@ -153,7 +165,22 @@ namespace CloverMod
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F2))
+            if (waitingForKey)
+            {
+                foreach (KeyCode key in System.Enum.GetValues(typeof(KeyCode)))
+                {
+                    if (Input.GetKeyDown(key))
+                    {
+                        openMenu = key;
+                        PlayerPrefs.SetString(openMenuKeyPref, key.ToString());
+                        PlayerPrefs.Save();
+                        Logger.LogInfo($"Menu open key set to {key}");
+                        waitingForKey = false;
+                        break;
+                    }
+                }
+            }
+            else if (Input.GetKeyDown(openMenu))
             {
                 ToggleUI();
             }
@@ -186,7 +213,6 @@ namespace CloverMod
                 Cursor.lockState = previousLockState;
                 Cursor.visible = previousCursorVisible;
                 Time.timeScale = desiredTimeScale;
-
 
                 Logger.LogInfo("Clover Mod UI closed!");
             }
@@ -230,9 +256,9 @@ namespace CloverMod
                     fontStyle = FontStyle.Bold
                 };
             }
-            if(label == null)
+            if (label == null)
             {
-                headerStyle = new GUIStyle(GUI.skin.label)
+                label = new GUIStyle(GUI.skin.label)
                 {
                     fontSize = 20,
                     fontStyle = FontStyle.Bold
@@ -267,7 +293,7 @@ namespace CloverMod
             DrawExtrasSection();
 
             GUILayout.Space(20);
-            if (GUILayout.Button("Close Menu (F2)"))
+            if (GUILayout.Button("Close Menu"))
             {
                 ToggleUI();
             }
@@ -841,6 +867,16 @@ namespace CloverMod
                         Logger.LogWarning("Invalid input for extra spins.");
                     }
                 });
+            }
+
+            GUILayout.Label($"Current Menu Key: {openMenu}");
+            if (GUILayout.Button(waitingForKey ? "Press a key..." : "Set Menu Open Key"))
+            {
+                waitingForKey = !waitingForKey;
+                if (waitingForKey)
+                {
+                    Logger.LogInfo("Waiting for key press to set new menu open key...");
+                }
             }
 
             GUILayout.Label($"Game Speed: {desiredTimeScale:F1}x (applies when menu closed)");
