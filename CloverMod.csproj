@@ -79,8 +79,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cheats\AchievementCheat.cs" />
+    <Compile Include="Cheats\AnimationSpeedCheat.cs" />
     <Compile Include="Cheats\FreeRestockCheat.cs" />
     <Compile Include="Cheats\SpinsRoundsCheat.cs" />
+    <Compile Include="Cheats\AddWinsToCardsCheat.cs" />
     <Compile Include="Cheats\TrippleSixCheat.cs" />
     <Compile Include="Cheats\CharmSlotCheat.cs" />
     <Compile Include="Cheats\CharmUnlockCheat.cs" />

@@ -22,5 +22,17 @@ namespace CloverMod
                 method?.Invoke(phoneUiScriptInstance, new object[] { true });
             }
         }
+
+        public static void TriggerPhone()
+        {
+            GameplayData instance = GameplayData.Instance;
+            if (instance != null && PhoneScript.instance != null)
+            {
+                instance._phone_abilityAlreadyPickedUp = false;
+                instance._phone_pickedUpOnceLastDeadline = false;
+                PhoneScript.StateSet(PhoneScript.State.offRinging);
+                PhoneScript.PhoneRing();
+            }
+        }
     }
 }

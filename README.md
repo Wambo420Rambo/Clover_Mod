@@ -17,6 +17,8 @@ Clover Mod is a BepInEx plugin designed to enhance gameplay for CloverPit by pro
 - **Charms & Store Cheats:** Unlock all charms instantly, add charm slots, and enable free restocks for unlimited resources.
 - **Symbol Chance Cheats:** Fine-tune spawn probabilities for game symbols to create your ideal gameplay experience.
 - **Pattern Value Cheats:** Adjust values for various patterns with exponential options for dramatic effects.
+- **Animation Speed Cheats:** Adjust the speed in whitch the Animation plays
+- **Add Memotry Card Win Cheats:** Set all of your Memory Card wins.
 
 ### Quality of Life Features
 - **Extra Cheats:** Trigger phone transformations, unlock achievements instantly, and add extra rounds or spins.

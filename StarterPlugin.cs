@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace CloverMod
 {
-    [BepInPlugin("Clovermod", "Clover Mod", "1.0.1")]
+    [BepInPlugin("Clovermod", "Clover Mod", "1.0.2")]
     public class StarterPlugin : BaseUnityPlugin
     {
         #region Constants
@@ -19,6 +19,7 @@ namespace CloverMod
 
         #region Reflection Cache
         private Type gameplayDataType;
+        private Type cameraDataType;
         private MethodInfo coinsAddMethodInfo;
         private MethodInfo cloverTicketsAddMethodInfo;
         private MethodInfo allPatternMultiplierAddInfo;
@@ -37,12 +38,16 @@ namespace CloverMod
         private Vector2 scrollPosition;
         private bool waitingForKey = false;
         private KeyCode openMenu = KeyCode.F2;
+        private MethodInfo freezeCursor;
+        private MethodInfo unfreezeCursor;
+        CameraController cameraInstance = CameraController.instance;
 
         // Cached styles (created once)
         private GUIStyle warningStyle;
         private GUIStyle cautionStyle;
         private GUIStyle headerStyle;
         private GUIStyle label;
+        private GUIStyle credit;
 
         // Foldout states
         private Dictionary<string, bool> foldoutStates;
@@ -64,6 +69,7 @@ namespace CloverMod
         private string freeRestockStr = "25";
         private string extraRoundsStr = "2";
         private string extraSpinsStr = "2";
+        private string amountOfWins = "10";
 
         private Dictionary<string, string> symbolChances;
         private Dictionary<string, string> patternValues;
@@ -73,6 +79,7 @@ namespace CloverMod
         private CursorLockMode previousLockState;
         private bool previousCursorVisible;
         private float desiredTimeScale = 1.0f;
+        private float desiredAnimationTimeScale = 1.0f;
         private string openMenuKeyPref = "OpenMenuKey";
         #endregion
 
@@ -95,11 +102,19 @@ namespace CloverMod
             }
 
             desiredTimeScale = Time.timeScale;
+
+           credit = new GUIStyle
+            {
+                fontSize = 14,
+                normal = { textColor = Color.white },
+                alignment = TextAnchor.LowerRight
+            };
         }
 
         private void InitializeReflection()
         {
             gameplayDataType = typeof(GameplayData);
+            cameraDataType = typeof(CameraController);
 
             const BindingFlags publicStatic = BindingFlags.Public | BindingFlags.Static;
             const BindingFlags privateStatic = BindingFlags.NonPublic | BindingFlags.Static;
@@ -115,9 +130,8 @@ namespace CloverMod
             addFreeRestockMethod = gameplayDataType.GetMethod("StoreFreeRestocksSet", publicStatic);
             extraSpinsAddMethod = gameplayDataType.GetMethod("ExtraSpinsAdd", publicStatic);
             extraRoundsAddMethod = gameplayDataType.GetMethod("DeadlineRoundsIncrement_Manual", publicStatic);
-
-            if (coinsAddMethodInfo == null) Logger.LogWarning("Failed to find CoinsAdd method");
-            if (symbolChanceSetMethod == null) Logger.LogWarning("Failed to find Symbol_Chance_Set method");
+            freezeCursor = cameraDataType.GetMethod("DisableReason_Add", publicStatic);
+            unfreezeCursor = cameraDataType.GetMethod("DisableReason_Remove", publicStatic);
         }
 
         private void InitializeFoldouts()
@@ -183,6 +197,7 @@ namespace CloverMod
             else if (Input.GetKeyDown(openMenu))
             {
                 ToggleUI();
+                
             }
 
             if (showUI)
@@ -190,6 +205,7 @@ namespace CloverMod
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
             }
+
         }
 
         private void ToggleUI()
@@ -206,6 +222,9 @@ namespace CloverMod
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
 
+                freezeCursor?.Invoke(cameraInstance, new object[] { "reason" });
+
+
                 Logger.LogInfo("Clover Mod UI opened!");
             }
             else
@@ -213,7 +232,7 @@ namespace CloverMod
                 Cursor.lockState = previousLockState;
                 Cursor.visible = previousCursorVisible;
                 Time.timeScale = desiredTimeScale;
-
+                unfreezeCursor?.Invoke(cameraInstance, new object[] { "reason" });
                 Logger.LogInfo("Clover Mod UI closed!");
             }
         }
@@ -222,6 +241,7 @@ namespace CloverMod
         {
             if (!showUI) return;
 
+            GUI.Label(new Rect(Screen.width - 150, Screen.height - 30, 140, 20), "Clover Mod v1.0.1", credit);
             InitializeStyles();
             DrawMainMenu();
         }
@@ -821,6 +841,23 @@ namespace CloverMod
                 Logger.LogInfo("Phone transformation triggered!");
             }
 
+            if(GUILayout.Button("Trigger Phone Ring"))
+            {
+                PhoneCheat.TriggerPhone();
+                Logger.LogInfo("Phone ring triggered!");
+            }
+
+            GUILayout.Label("Set Wins to all Cards:");
+            amountOfWins = GUILayout.TextField(amountOfWins);
+            if (GUILayout.Button("Add Wins"))
+            {
+                if (int.TryParse(amountOfWins, out int amount))
+                {
+                    AddWinsToCardsCheat.addCardWins(amount);
+                    Logger.LogInfo($"Set wins to: {amountOfWins}");
+                }
+            }
+
             if (GUILayout.Button("Unlock All Achievements"))
             {
                 AchievementCheat.UnlockAllAchievements();
@@ -879,8 +916,18 @@ namespace CloverMod
                 }
             }
 
-            GUILayout.Label($"Game Speed: {desiredTimeScale:F1}x (applies when menu closed)");
-            desiredTimeScale = GUILayout.HorizontalSlider(desiredTimeScale, 1.0f, 4.0f, GUILayout.Width(300));
+            GUILayout.Label($"Animation Speed: {desiredAnimationTimeScale:F1} --> if on 20x put gamespeed to 2x otherwise it can break.");
+            desiredAnimationTimeScale = GUILayout.HorizontalSlider(desiredAnimationTimeScale, 1.0f, 20.0f, GUILayout.Width(300));
+
+            GUILayout.BeginHorizontal();
+            if (DrawAnimationButton("1x",   1)) { }
+            if (DrawAnimationButton("10x", 10)) { }
+            if (DrawAnimationButton("20x", 20)) { }
+            GUILayout.EndHorizontal();
+
+            GUILayout.Label($"Game Speed: {desiredTimeScale:F1}");
+            desiredTimeScale = GUILayout.HorizontalSlider(desiredTimeScale, 1.0f, 4.0f, GUILayout.Width(300)); 
+
 
             GUILayout.BeginHorizontal();
             if (DrawSpeedButton("1x", 1f)) { }
@@ -889,6 +936,17 @@ namespace CloverMod
             GUILayout.EndHorizontal();
 
             EndIndentedSection();
+        }
+        private bool DrawAnimationButton(string label, int speed)
+        {
+            if (GUILayout.Button(label, GUILayout.Width(50)))
+            {
+                desiredAnimationTimeScale = speed;
+                AnimationSpeedCheat.AddAnimationSpeed(speed);
+                Logger.LogInfo($"Animation speed set to {speed}x!");
+                return true;
+            }
+            return false;
         }
 
         private bool DrawSpeedButton(string label, float speed)
@@ -901,6 +959,7 @@ namespace CloverMod
             }
             return false;
         }
+
         #endregion
 
         #region Utility Methods
