@@ -47,7 +47,6 @@ namespace CloverMod
         private GUIStyle cautionStyle;
         private GUIStyle headerStyle;
         private GUIStyle label;
-        private GUIStyle credit;
 
         // Foldout states
         private Dictionary<string, bool> foldoutStates;
@@ -102,13 +101,6 @@ namespace CloverMod
             }
 
             desiredTimeScale = Time.timeScale;
-
-           credit = new GUIStyle
-            {
-                fontSize = 14,
-                normal = { textColor = Color.white },
-                alignment = TextAnchor.LowerRight
-            };
         }
 
         private void InitializeReflection()
@@ -241,7 +233,6 @@ namespace CloverMod
         {
             if (!showUI) return;
 
-            GUI.Label(new Rect(Screen.width - 150, Screen.height - 30, 140, 20), "Clover Mod v1.0.1", credit);
             InitializeStyles();
             DrawMainMenu();
         }
