@@ -84,7 +84,7 @@ namespace CloverMod
 
         private void Awake()
         {
-            Logger.LogInfo("Clover Mod v1.0.1 successfully loaded!");
+            Logger.LogInfo("Clover Mod v1.0.2 successfully loaded!");
 
             InitializeReflection();
             InitializeFoldouts();
@@ -280,7 +280,7 @@ namespace CloverMod
         private void DrawMainMenu()
         {
             Rect menuRect = new Rect(MENU_PADDING, Screen.height - MENU_HEIGHT - MENU_PADDING, MENU_WIDTH, MENU_HEIGHT);
-            GUI.Box(menuRect, "Clover Mod Menu v1.0.1");
+            GUI.Box(menuRect, "Clover Mod Menu v1.0.2");
 
             GUILayout.BeginArea(new Rect(
                 menuRect.x + MENU_PADDING,
