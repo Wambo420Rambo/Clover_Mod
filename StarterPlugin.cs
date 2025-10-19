@@ -424,7 +424,7 @@ namespace CloverMod
             {
                 ExecuteWithMethodCheck(cloverTicketsAddMethodInfo, "CloverTicketsAdd", () =>
                 {
-                    int value = ParseIntOrDefault(cloverTicketsStr, int.MaxValue);
+                    long value = long.MaxValue; //ParseIntOrDefault(cloverTicketsStr, (int)long.MaxValue);
                     if (!ShouldSkipValue(value, "clover tickets"))
                     {
                         CloverTicketCheat.AddMaxCloverTickets(cloverTicketsAddMethodInfo, value);
@@ -912,6 +912,7 @@ namespace CloverMod
 
             GUILayout.BeginHorizontal();
             if (DrawAnimationButton("1x",   1)) { }
+            if (DrawAnimationButton("5x",   5)) { }
             if (DrawAnimationButton("10x", 10)) { }
             if (DrawAnimationButton("20x", 20)) { }
             GUILayout.EndHorizontal();
