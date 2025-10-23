@@ -84,7 +84,7 @@ namespace CloverMod
 
         private void Awake()
         {
-            Logger.LogInfo("Clover Mod v1.0.2 successfully loaded!");
+            Logger.LogInfo("Clover Mod v1.0.3 successfully loaded!");
 
             InitializeReflection();
             InitializeFoldouts();
@@ -280,7 +280,7 @@ namespace CloverMod
         private void DrawMainMenu()
         {
             Rect menuRect = new Rect(MENU_PADDING, Screen.height - MENU_HEIGHT - MENU_PADDING, MENU_WIDTH, MENU_HEIGHT);
-            GUI.Box(menuRect, "Clover Mod Menu v1.0.2");
+            GUI.Box(menuRect, "Clover Mod Menu v1.0.3");
 
             GUILayout.BeginArea(new Rect(
                 menuRect.x + MENU_PADDING,
@@ -853,6 +853,33 @@ namespace CloverMod
             {
                 AchievementCheat.UnlockAllAchievements();
                 Logger.LogInfo("All Steam achievements unlocked!");
+            }
+
+            GUILayout.Label("Refresh the Shop so they Corpses are shown");
+            if (GUILayout.Button("Get all Corpse Pieces"))
+            {
+
+                PowerupScript.Identifier[] corpse = new PowerupScript.Identifier[] {
+
+                    PowerupScript.Identifier.Skeleton_Arm1,
+                    PowerupScript.Identifier.Skeleton_Arm2,
+                    PowerupScript.Identifier.Skeleton_Leg1,
+                    PowerupScript.Identifier.Skeleton_Leg2,
+                    PowerupScript.Identifier.Skeleton_Head
+                };
+
+                foreach(var x in corpse)
+                { 
+                    if(PowerupScript.IsInDrawer_Quick(x))
+                        PowerupScript.ThrowAway(x, true);
+                }
+
+                foreach (var x in corpse)
+                {
+                    if (!PowerupScript.IsEquipped_Quick(x))
+                        PowerupScript.Equip(x, true, false);
+                }
+                Logger.LogInfo("Equipped all Corpse Pieces!");
             }
 
             GUILayout.Label("Extra rounds to add:");
