@@ -151,4 +151,4 @@ By using this mod, you acknowledge and accept these risks.
 
 ---
 
-P.S. This is my first time Modding, so the codebase is a bit messy and inconsistent (thanks to Me and AI). I hope to clean it up and make a more organized version when I have the time.
+P.S. This is my first time Modding, so the codebase is a bit messy and inconsistent (thanks to Me and AI).
