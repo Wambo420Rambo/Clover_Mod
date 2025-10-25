@@ -1,7 +1,9 @@
 ﻿using BepInEx;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.PerformanceData;
 using System.Reflection;
+using System.Threading;
 using UnityEngine;
 
 namespace CloverMod
@@ -189,7 +191,7 @@ namespace CloverMod
             else if (Input.GetKeyDown(openMenu))
             {
                 ToggleUI();
-                
+
             }
 
             if (showUI)
@@ -832,7 +834,7 @@ namespace CloverMod
                 Logger.LogInfo("Phone transformation triggered!");
             }
 
-            if(GUILayout.Button("Trigger Phone Ring"))
+            if (GUILayout.Button("Trigger Phone Ring"))
             {
                 PhoneCheat.TriggerPhone();
                 Logger.LogInfo("Phone ring triggered!");
@@ -846,6 +848,38 @@ namespace CloverMod
                 {
                     AddWinsToCardsCheat.addCardWins(amount);
                     Logger.LogInfo($"Set wins to: {amountOfWins}");
+                }
+            }
+
+            if (GUILayout.Button("Set all Memorycards to 999"))
+            {
+                RunModifierScript.Identifier[] cardList = new RunModifierScript.Identifier[] {
+                    RunModifierScript.Identifier.phoneEnhancer,
+                    RunModifierScript.Identifier.redButtonOverload,
+                    RunModifierScript.Identifier.smallerStore,
+                    RunModifierScript.Identifier.smallItemPool,
+                    RunModifierScript.Identifier.interestsGrow,
+                    RunModifierScript.Identifier.lessSpaceMoreDiscount,
+                    RunModifierScript.Identifier.smallRoundsMoreRounds,
+                    RunModifierScript.Identifier.oneRoundPerDeadline,
+                    RunModifierScript.Identifier.headStart,
+                    RunModifierScript.Identifier.extraPacks,
+                    RunModifierScript.Identifier._666BigBetDouble_SmallBetNoone,
+                    RunModifierScript.Identifier._666DoubleChances_JackpotRecovers,
+                    RunModifierScript.Identifier._666LastRoundGuaranteed,
+                    RunModifierScript.Identifier.drawerTableModifications,
+                    RunModifierScript.Identifier.drawerModGamble,
+                    RunModifierScript.Identifier.halven2SymbolsChances,
+                    RunModifierScript.Identifier.charmsRecycling,
+                    RunModifierScript.Identifier.allCharmsStoreModded,
+                    RunModifierScript.Identifier.bigDebt,
+                };
+
+                var inst = Panik.Data.GameData.inst;
+
+                foreach (var x in cardList)
+                {
+                    inst.RunModifier_OwnedCount_Set(x, 999);
                 }
             }
 
@@ -868,9 +902,9 @@ namespace CloverMod
                     PowerupScript.Identifier.Skeleton_Head
                 };
 
-                foreach(var x in corpse)
-                { 
-                    if(PowerupScript.IsInDrawer_Quick(x))
+                foreach (var x in corpse)
+                {
+                    if (PowerupScript.IsInDrawer_Quick(x))
                         PowerupScript.ThrowAway(x, true);
                 }
 
@@ -938,14 +972,14 @@ namespace CloverMod
             desiredAnimationTimeScale = GUILayout.HorizontalSlider(desiredAnimationTimeScale, 1.0f, 20.0f, GUILayout.Width(300));
 
             GUILayout.BeginHorizontal();
-            if (DrawAnimationButton("1x",   1)) { }
-            if (DrawAnimationButton("5x",   5)) { }
+            if (DrawAnimationButton("1x", 1)) { }
+            if (DrawAnimationButton("5x", 5)) { }
             if (DrawAnimationButton("10x", 10)) { }
             if (DrawAnimationButton("20x", 20)) { }
             GUILayout.EndHorizontal();
 
             GUILayout.Label($"Game Speed: {desiredTimeScale:F1}");
-            desiredTimeScale = GUILayout.HorizontalSlider(desiredTimeScale, 1.0f, 4.0f, GUILayout.Width(300)); 
+            desiredTimeScale = GUILayout.HorizontalSlider(desiredTimeScale, 1.0f, 4.0f, GUILayout.Width(300));
 
 
             GUILayout.BeginHorizontal();
