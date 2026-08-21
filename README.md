@@ -1,154 +1,178 @@
-# Clover Mod
+# CloverMod
 
-**Press F2 to open/close the mod menu in-game.**
+CloverMod is an in-game utility, cheat, and quality-of-life menu for **CloverPit**. Version 2.0 rebuilds the original plugin around validated game actions, persistent settings, focused Harmony patches, and a recoverable menu hotkey.
 
-## Overview
+> CloverMod can directly change active-run data and unlock achievements. Back up important saves before experimenting with extreme values.
 
-Clover Mod is a BepInEx plugin designed to enhance gameplay for CloverPit by providing a customizable in-game menu with various cheats and modifications. This mod allows players to tweak game mechanics such as currency, multipliers, symbol chances, and more, offering a tailored experience for testing or casual play.
+## Quick start
 
-> ⚠️ **Warning:** Using high values in the mod may cause game instability or crashes. Use at your own risk!
+1. Install **BepInEx 5.x (Mono)** for CloverPit and launch the game once.
+2. Copy `CloverMod.dll` into `CloverPit/BepInEx/plugins/`.
+3. Start CloverPit.
+4. Press **M** to open CloverMod. **Insert** is the default recovery key.
+
+The BepInEx log should contain `Clover Mod v2.0.0 loaded`. Keep only one copy of `CloverMod.dll` in the plugins folder.
 
 ## Features
 
-### Core Cheats
-- **Currency Cheats:** Add coins and clover tickets, including exponential coin additions for rapid wealth accumulation.
-- **Multiplier Cheats:** Adjust pattern and symbol multipliers for enhanced rewards and bigger payouts.
-- **Interest and 666 Cheats:** Modify interest rates, 666 chances, and red button multipliers to customize risk/reward mechanics.
-- **Charms & Store Cheats:** Unlock all charms instantly, add charm slots, and enable free restocks for unlimited resources.
-- **Symbol Chance Cheats:** Fine-tune spawn probabilities for game symbols to create your ideal gameplay experience.
-- **Pattern Value Cheats:** Adjust values for various patterns with exponential options for dramatic effects.
-- **Animation Speed Cheats:** Adjust the speed in whitch the Animation plays
-- **Add Memotry Card Win Cheats:** Set all of your Memory Card wins.
+### Currency, rates, and multipliers
 
-### Quality of Life Features
-- **Extra Cheats:** Trigger phone transformations, unlock achievements instantly, and add extra rounds or spins.
-- **Game Speed Control:** Adjust game speed dynamically via a slider or use convenient preset buttons (1x, 2x, 4x) for faster gameplay.
-- **User-Friendly UI:** Toggleable menu with clear, bold fonts and a semi-transparent dark background for optimal visibility during gameplay.
+- Add exact coin and clover-ticket amounts.
+- Add `10^n` BigInteger coin and multiplier values.
+- Change pattern and symbol multipliers.
+- Configure interest, 666 chance, its maximum, and the red-button multiplier.
+- Add charm slots, free store restocks, rounds, and spins.
+
+### Charms
+
+- Search all charms by name.
+- Filter to charms owned in the current run.
+- See owned, equipped, drawer, unlock, and charge information.
+- Unlock, equip, recharge, modify, or discard a selected charm.
+- Recharge every charm and equip all corpse pieces.
+- Set activation luck, charm luck, and store luck with descriptions in the menu.
+
+### Symbols and patterns
+
+- Edit symbol spawn weights as percentages.
+- Lock individual weights while the remaining unlocked fields are redistributed to exactly `100%`.
+- Use `0%` for a symbol without breaking automatic redistribution.
+- Load and normalize the current in-game weights or equalize all unlocked fields.
+- Edit symbol coin values and pattern values.
+
+### Run tools
+
+- Inspect the current seed, coins, debt, deposit, Deadline level, rounds, spins, interest, luck, and multipliers.
+- Copy the current seed.
+- Safely edit active-run values with validation.
+- Apply Normal and Lucky presets or save a persistent Custom preset.
+- Undo the latest supported reversible numeric change.
+- Trigger phone actions and optionally unlock achievements.
+
+### Slot and memory cards
+
+- Optional **Auto mode** starts the next slot spin when the machine is ready.
+- Set owned and victory counts for every memory card.
+- Optionally prevent owned memory-card counts from decreasing.
+
+Auto mode uses CloverPit's normal spin call. Costs, statistics, charms, results, and slot animations continue through the normal game logic.
+
+## Quality-of-life options
+
+All QoL switches are **off by default** and can be changed under `Extras → Quality of life` or in `BepInEx/config/Clovermod.cfg`.
+
+| Option | Default | Behavior |
+| --- | ---: | --- |
+| Auto-skip intro | Off | Skips scene 1 and enters the main game automatically. |
+| Auto-complete corpse | Off | Once per run, puts missing skeleton limbs into available drawers. |
+| Skip memory-pack punch | Off | Removes the pack-punch animation. |
+| Auto-flip pack cards | Off | Requests normal flips for face-down cards during pack deals. |
+| Fast memory-pack flow | Off | Shortens waits and continues non-dialogue pack prompts automatically. |
+| Phase speed profiles | Off | Applies the configured speed for normal play, gambling, post-jackpot animations, cutscenes, and charm discards. |
+
+Fast memory packs preserve the original deal coroutine and leave the Yes/No deal decision to the player.
+
+The default phase-profile values are:
+
+| Phase | Speed |
+| --- | ---: |
+| Normal game and animations | 1x |
+| Gambling animations | 4x |
+| Animations after the first recorded jackpot | 10x |
+| Cutscenes | 3x |
+| Charm-discard burst | 4x |
+
+Phase profiles override the two manual speed sliders while enabled.
+
+## Controls and configuration
+
+| Setting | Default | Description |
+| --- | ---: | --- |
+| `MenuKey` | `M` | Opens and closes CloverMod. Existing F2 defaults migrate to M. |
+| `FallbackMenuKey` | `Insert` | Recovery key if the primary binding is unavailable. Set to `None` to disable. |
+| `PauseWhileOpen` | On | Pauses gameplay while the CloverMod menu is open. |
+| `AutoSlotMode` | Off | Automatically starts the next slot spin. |
+| `UnlimitedMemoryCards` | Off | Prevents owned memory-card counts from being spent. |
+
+Both menu keys can also be rebound inside CloverMod. If neither binding works, close the game and set either key in `BepInEx/config/Clovermod.cfg` to a valid `UnityEngine.KeyCode`, such as `F4`, `Home`, or `Insert`.
+
+## Safety behavior
+
+- Payout and charm animations temporarily use at most **4x animation speed** to avoid black screens. The selected target is restored after the animation.
+- Camera movement is clamped to prevent high-speed transitions from overshooting outside the room.
+- Global game speed and payout/transition animation speed are separate controls.
+- Activation, charm, and store luck accept `0.5` to `100,000`. Vanilla is `1.0`; CloverPit itself clamps these values to at least `0.5`.
+- Deadline and Deposit edits require two clicks within six seconds.
+- Charm discard and achievement unlocking also require confirmation because their effects cannot be safely undone.
+- Undo stores only the latest supported numeric change. Unlocks, achievements, charm discard, and other irreversible actions are not included.
+
+Extreme values may still cause long base-game payout sequences, UI layout problems, or save data the original game was not designed to handle.
 
 ## Requirements
 
-- **CloverPit** (base game)
-- **[BepInEx](https://github.com/BepInEx/BepInEx/releases)** (version 5.x or later)
+- CloverPit
+- BepInEx 5.x for the Mono build of the game
+
+**CloverAPI is not required.** CloverMod does not add custom charms or persistent game content.
 
 ## Installation
 
-### Step 1: Install BepInEx
+The default Steam installation is:
 
-1. Download the latest version of **BepInEx 5.x** from the [official GitHub releases page](https://github.com/BepInEx/BepInEx/releases).
-2. Extract the BepInEx files into your CloverPit installation directory (where `CloverPit.exe` is located).
-3. Run the game once to allow BepInEx to generate its folder structure (`BepInEx/plugins`, `BepInEx/config`, etc.).
-4. Close the game after BepInEx initializes.
+```text
+C:\Program Files (x86)\Steam\steamapps\common\CloverPit
+```
 
-### Step 2: Install Clover Mod
+Install the DLL here:
 
-1. Download the latest release of **Clover Mod** from the [Releases page](../../releases).
-2. Extract the `CloverMod.dll` file into the `BepInEx/plugins` folder in your CloverPit directory.
-   - If the `plugins` folder doesn't exist, create it manually.
-3. Your directory structure should look like this:
-   ```
-   CloverPit/
-   ├── BepInEx/
-   │   ├── plugins/
-   │   │   └── CloverMod.dll
-   │   └── ...
-   └── CloverPit.exe
-   ```
+```text
+CloverPit\BepInEx\plugins\CloverMod.dll
+```
 
-### Step 3: Verify Installation
+After launching the game, configuration is stored here:
 
-1. Launch the game.
-2. Check the BepInEx console window or the log file (`BepInEx/LogOutput.log`) for the message:
-   ```
-   Clover Mod v1.0.1 successfully loaded!
-   ```
-3. If you see this message, the mod is installed correctly.
+```text
+CloverPit\BepInEx\config\Clovermod.cfg
+```
 
-## Usage
-
-### Opening the Mod Menu
-
-- **Press F2** at any time during gameplay to toggle the Clover Mod menu.
-- The menu pauses the game automatically and displays various cheat sections.
-
-### Navigating the Menu
-
-- Use the **foldout sections** (e.g., Currency Cheats, Multiplier Cheats, Symbol Chance Cheats) to access specific options.
-- Enter values in text fields and click the corresponding buttons to apply cheats.
-- Adjust game speed using the **slider** or convenient **preset buttons** (1x, 2x, 4x).
-- Scroll through the menu if needed to access all available options.
-
-### Applying Cheats
-
-- Input your desired values for coins, multipliers, chances, pattern values, etc.
-- Click the corresponding button to apply the changes instantly.
-- **Be cautious with high values**, as they may cause lag, instability, or crashes.
-- Some changes (e.g., Ascension Counter) require restarting your run to take effect.
-
-### Closing the Menu
-
-- Press **F2** again or click the **"Close Menu (F2)"** button to close the menu and resume gameplay.
-
-## Examples
-
-### Adding Coins
-1. Open the menu with **F2**.
-2. Navigate to the **"Currency Cheats"** section.
-3. Enter a value in the **"Add Normal coins"** field (e.g., `1000`).
-4. Click **"Add Coins"** to instantly add the coins to your balance.
-
-### Unlocking All Charms
-1. Open the menu with **F2**.
-2. Navigate to the **"Charms & Store Cheats"** section.
-3. Click **"Unlock All Charms"** to instantly unlock every charm in the game.
-
-### Adjusting Game Speed
-1. Open the menu with **F2**.
-2. Scroll to the **"Game Speed Control"** section.
-3. Use the slider to set a custom speed or click a preset button (**1x**, **2x**, or **4x**).
+Version 2.0 automatically removes obsolete Skip Reel, Skip Winning Animation, Turbo, and scientific-notation configuration entries left by older builds.
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| **Mod not loading** | Ensure BepInEx is correctly installed and the `CloverMod.dll` file is in the `BepInEx/plugins` folder. Check the log file for errors. |
-| **Menu not appearing** | Verify that **F2** is not bound to another action in the game. Check the BepInEx console or log file for errors. |
-| **Game crashes or freezes** | Reduce the values entered in the mod menu. High values (especially exponential additions) can cause instability. Try restarting the game. |
-| **Changes not taking effect** | Some modifications (like Ascension Counter) require restarting your run. Exit to the main menu and start a new game. |
-| **BepInEx console not appearing** | Enable the console in `BepInEx/config/BepInEx.cfg` by setting `Enabled = true` under `[Logging.Console]`. |
+- **Menu does not open:** try `Insert`, then verify `MenuKey` and `FallbackMenuKey` in the configuration file.
+- **Plugin does not load:** check `BepInEx/LogOutput.log` for `Clover Mod v2.0.0 loaded` and confirm that BepInEx is the Mono build.
+- **Duplicate behavior or patches:** remove older CloverMod DLLs and keep only `BepInEx/plugins/CloverMod.dll`.
+- **Speed behaves unexpectedly:** disable automatic phase speed profiles before using the manual global and animation-speed sliders.
 
-## Contributing
+## Building from source
 
-We welcome contributions from the community! To contribute:
+The project targets .NET Framework 4.8 and references assemblies from a local CloverPit installation. Proprietary game DLLs are not committed to this repository.
 
-1. **Fork the repository** on GitHub.
-2. **Create a new branch** for your changes (`git checkout -b feature/your-feature-name`).
-3. **Make your modifications** and test thoroughly.
-4. **Submit a pull request** with a clear description of your changes and why they're beneficial.
+```powershell
+dotnet restore CloverMod.sln
+dotnet build CloverMod.sln -c Release
+```
 
-Please ensure your code:
-- Follows the existing code style and conventions
-- Includes appropriate logging for debugging purposes
-- Does not introduce breaking changes without discussion
-- Is well-commented for future maintainers
+For a non-default installation path:
+
+```powershell
+dotnet build CloverMod.sln -c Release -p:GameDir="D:\Games\CloverPit"
+```
+
+Alternatively, set the `CLOVERPIT_DIR` environment variable. The compiled plugin is written to `bin/Release/CloverMod.dll`.
+
+## Project structure
+
+```text
+Configuration/  Persistent BepInEx settings
+Core/           Validated game actions and QoL state handling
+Patches/        Focused Harmony patches and safety fixes
+UI/             Unity OnGUI/GUILayout menu and hotkey rebinding
+Plugin.cs       Plugin lifecycle and update routing
+```
+
+The menu uses Unity's built-in `OnGUI`/`GUILayout` API from `UnityEngine.IMGUIModule.dll`. It does **not** use the unrelated third-party ImGui.NET package.
 
 ## License
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for full details.
-
-## Disclaimer
-
-This mod is provided **as-is**, with **no warranty of any kind**, express or implied. Use it responsibly and at your own risk.
-
-⚠️ **Important Notes:**
-- This mod may violate the terms of service of CloverPit or related platforms.
-- The author is **not responsible** for any consequences, including but not limited to:
-  - Game bans or account suspensions
-  - Data loss or corruption
-  - Game instability or crashes
-  - Any other technical issues
-
-By using this mod, you acknowledge and accept these risks.
-
----
-
-P.S. This is my first time Modding, so the codebase is a bit messy and inconsistent (thanks to Me and AI).
+MIT. See [LICENSE](LICENSE).

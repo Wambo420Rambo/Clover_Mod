@@ -1,0 +1,9 @@
+{
+  "name": "CloverMod",
+  "version_number": "2.0.0",
+  "website_url": "https://github.com/Wambo420Rambo/Clover_Mod",
+  "description": "A robust in-game utility and cheat menu for CloverPit.",
+  "dependencies": [
+    "BepInEx-BepInExPack-5.4.2100"
+  ]
+}

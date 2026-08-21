@@ -1,6 +1,7 @@
 # Visual Studio / Build artifacts
 bin/
 obj/
+packages/
 *.csproj.user
 *.suo
 *.pdb
