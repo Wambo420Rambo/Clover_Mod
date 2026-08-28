@@ -52,10 +52,15 @@ The BepInEx log should contain `Clover Mod v2.0.0 loaded`. Keep only one copy of
 ### Slot and memory cards
 
 - Optional **Auto mode** starts the next slot spin when the machine is ready.
+- Select any number of additional memory cards from a dedicated searchable tab.
+- Click a card to enable or disable it; the selection is saved between launches.
+- Stack the normal card chosen by CloverPit with the selected standard and Fusion-DLC card effects.
 - Set owned and victory counts for every memory card.
 - Optionally prevent owned memory-card counts from decreasing.
 
 Auto mode uses CloverPit's normal spin call. Costs, statistics, charms, results, and slot animations continue through the normal game logic.
+
+Additional cards do not replace or consume the primary card chosen through CloverPit's normal flow. Continuous effects stop when a card is disabled. One-time setup effects already granted in the current run cannot be safely reversed; disabling them takes full effect on the next run. Runs with additional cards are marked as non-verifiable.
 
 ## Quality-of-life options
 
@@ -93,6 +98,8 @@ Phase profiles override the two manual speed sliders while enabled.
 | `PauseWhileOpen` | On | Pauses gameplay while the CloverMod menu is open. |
 | `AutoSlotMode` | Off | Automatically starts the next slot spin. |
 | `UnlimitedMemoryCards` | Off | Prevents owned memory-card counts from being spent. |
+| `MultipleMemoryCardsEnabled` | Off | Enables the additional cards selected in the Memory Cards tab. |
+| `AdditionalMemoryCards` | Empty | Internal comma-separated storage for the selected additional cards. |
 
 Both menu keys can also be rebound inside CloverMod. If neither binding works, close the game and set either key in `BepInEx/config/Clovermod.cfg` to a valid `UnityEngine.KeyCode`, such as `F4`, `Home`, or `Insert`.
 

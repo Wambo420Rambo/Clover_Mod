@@ -15,4 +15,5 @@
 - Added one-level Undo for the latest supported reversible numeric change.
 - Fixed custom ticket values, one-unit additions, speed sliders, and the 5x animation-speed option.
 - Added optional unlimited memory cards, phone actions, rounds/spins, pattern values, achievements confirmation, and strict input validation.
+- Added a dedicated searchable Memory Cards tab and support for stacking standard and Fusion-DLC card effects with the primary card.
 - Removed the large-number/scientific-notation feature and other unused legacy files.

@@ -89,6 +89,18 @@ namespace CloverMod.Configuration
                 false,
                 "Prevents owned memory-card counts from decreasing. Opt-in because it changes normal progression.");
 
+            MultipleMemoryCardsEnabled = config.Bind(
+                "Cheats",
+                "MultipleMemoryCardsEnabled",
+                false,
+                "Allows multiple memory cards to be active during one run.");
+
+            AdditionalMemoryCards = config.Bind(
+                "Cheats",
+                "AdditionalMemoryCards",
+                string.Empty,
+                "Comma-separated list of additional active memory cards.");
+
             CustomPreset = config.Bind(
                 "Presets",
                 "CustomPreset",
@@ -129,6 +141,10 @@ namespace CloverMod.Configuration
         public ConfigEntry<bool> PauseWhileOpen { get; }
 
         public ConfigEntry<bool> UnlimitedMemoryCards { get; }
+
+        public ConfigEntry<bool> MultipleMemoryCardsEnabled { get; }
+
+        public ConfigEntry<string> AdditionalMemoryCards { get; }
 
         public ConfigEntry<string> CustomPreset { get; }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using CloverMod.Configuration;
@@ -15,12 +16,17 @@ namespace CloverMod.UI
     {
         private const string CursorDisableReason = "CloverMod.Menu";
 
+        private static readonly Regex TextMeshProSpriteTag = new Regex(
+            "<sprite[^>]*name=\"([^\"]+)\"[^>]*>",
+            RegexOptions.IgnoreCase);
+
         private static readonly string[] Tabs =
         {
             "Currency",
             "Multipliers",
             "Rates & 666",
             "Charms",
+            "Memory Cards",
             "Symbols",
             "Patterns",
             "Run",
@@ -114,6 +120,8 @@ namespace CloverMod.UI
         private PowerupScript.Identifier? selectedCharm;
         private string charmSearch = string.Empty;
         private bool charmOwnedOnly = true;
+        private RunModifierScript.Identifier? selectedMemoryCard;
+        private string memoryCardSearch = string.Empty;
 
         private string coinsInput = "1000";
         private string coinExponentInput = "10";
@@ -330,12 +338,15 @@ namespace CloverMod.UI
                     DrawCharms();
                     break;
                 case 4:
-                    DrawSymbols();
+                    DrawMemoryCards();
                     break;
                 case 5:
-                    DrawPatterns();
+                    DrawSymbols();
                     break;
                 case 6:
+                    DrawPatterns();
+                    break;
+                case 7:
                     DrawRunTools();
                     break;
                 default:
@@ -751,6 +762,204 @@ namespace CloverMod.UI
             }
         }
 
+        private void DrawMemoryCards()
+        {
+            Section("Multiple memory cards");
+            bool enabled = GUILayout.Toggle(
+                config.MultipleMemoryCardsEnabled.Value,
+                "Enable additional memory cards");
+            if (enabled != config.MultipleMemoryCardsEnabled.Value)
+            {
+                config.MultipleMemoryCardsEnabled.Value = enabled;
+                MultipleMemoryCards.EnabledChanged();
+                Run(ActionResult.Success(
+                    enabled
+                        ? "Additional memory cards enabled."
+                        : "Additional memory cards disabled."));
+            }
+
+            string primaryName = MemoryCardDisplayName(MultipleMemoryCards.PrimaryCard);
+            GUILayout.Label(
+                $"Primary: {primaryName}  |  selected: {MultipleMemoryCards.ConfiguredCards.Count}  |  additional active: {MultipleMemoryCards.ActiveRunCards.Count}",
+                mutedStyle);
+            GUILayout.Label(
+                "Click a card once to enable it and again to disable it. The selection is saved. A card marked PRIMARY is the normal card chosen by the game and is not counted twice.",
+                mutedStyle);
+            GUILayout.Label(
+                "Removing a card stops its ongoing rules immediately. Bonuses already granted once (for example tickets, slots or starting coins) cannot be taken back safely and therefore remain until the next run.",
+                warningStyle);
+
+            ButtonRow(
+                "Select all",
+                () =>
+                {
+                    MultipleMemoryCards.SelectAllConfigured();
+                    Run(ActionResult.Success("All memory cards selected."));
+                },
+                "Clear selection",
+                () =>
+                {
+                    MultipleMemoryCards.ClearConfigured();
+                    Run(ActionResult.Success("Additional memory-card selection cleared."));
+                });
+
+            Section("Card list");
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Search", labelStyle, GUILayout.Width(90f));
+            memoryCardSearch = GUILayout.TextField(
+                memoryCardSearch,
+                textFieldStyle,
+                GUILayout.ExpandWidth(true));
+            GUILayout.EndHorizontal();
+
+            int shown = 0;
+            foreach (RunModifierScript.Identifier identifier in
+                     Enum.GetValues(typeof(RunModifierScript.Identifier)))
+            {
+                if (!MultipleMemoryCards.IsValidCard(identifier))
+                {
+                    continue;
+                }
+
+                string name = MemoryCardDisplayName(identifier);
+                if (!string.IsNullOrWhiteSpace(memoryCardSearch) &&
+                    name.IndexOf(memoryCardSearch, StringComparison.OrdinalIgnoreCase) < 0 &&
+                    identifier.ToString().IndexOf(
+                        memoryCardSearch,
+                        StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    continue;
+                }
+
+                shown++;
+                bool configured = MultipleMemoryCards.IsConfigured(identifier);
+                bool primary = MultipleMemoryCards.PrimaryCard == identifier;
+                string state = primary
+                    ? configured ? "PRIMARY + SAVED" : "PRIMARY"
+                    : configured ? "ON" : "OFF";
+                string dlc = IsFusionMemoryCard(identifier) ? " | FUSION DLC" : string.Empty;
+                GUIStyle style = configured || primary ? primaryButtonStyle : buttonStyle;
+
+                if (GUILayout.Button(
+                        $"[{state}]  {name}{dlc}",
+                        style,
+                        GUILayout.Height(31f)))
+                {
+                    selectedMemoryCard = identifier;
+                    if (configured)
+                    {
+                        MultipleMemoryCards.RemoveConfigured(identifier);
+                        Run(ActionResult.Success($"Disabled additional card: {name}."));
+                    }
+                    else
+                    {
+                        MultipleMemoryCards.AddConfigured(identifier);
+                        Run(ActionResult.Success($"Enabled additional card: {name}."));
+                    }
+                }
+            }
+
+            if (shown == 0)
+            {
+                GUILayout.Label("No memory card matches the search.", mutedStyle);
+            }
+
+            if (selectedMemoryCard.HasValue)
+            {
+                GUILayout.Space(5f);
+                GUILayout.Label(
+                    "Selected: " + MemoryCardDisplayName(selectedMemoryCard.Value),
+                    labelStyle);
+                GUILayout.Label(
+                    MemoryCardDescription(selectedMemoryCard.Value),
+                    statusStyle);
+            }
+
+            Section("Card inventory");
+            bool unlimited = GUILayout.Toggle(
+                config.UnlimitedMemoryCards.Value,
+                "Unlimited memory cards (prevent spending)");
+            if (unlimited != config.UnlimitedMemoryCards.Value)
+            {
+                config.UnlimitedMemoryCards.Value = unlimited;
+                Run(ActionResult.Success(
+                    unlimited
+                        ? "Unlimited memory cards enabled."
+                        : "Unlimited memory cards disabled."));
+            }
+
+            TextActionRow("Owned count", ref memoryCardsInput, "Set all", () =>
+            {
+                if (TryParseInt(memoryCardsInput, out int value))
+                {
+                    Run(actions.SetMemoryCardCounts(value));
+                }
+                else
+                {
+                    Invalid("Enter a whole-number memory-card count.");
+                }
+            });
+            TextActionRow("Win count", ref memoryWinsInput, "Set all", () =>
+            {
+                if (TryParseInt(memoryWinsInput, out int value))
+                {
+                    Run(actions.SetMemoryCardWins(value));
+                }
+                else
+                {
+                    Invalid("Enter a whole-number memory-card win count.");
+                }
+            });
+        }
+
+        private static string MemoryCardDisplayName(
+            RunModifierScript.Identifier identifier)
+        {
+            if (!MultipleMemoryCards.IsValidCard(identifier))
+            {
+                return identifier == RunModifierScript.Identifier.defaultModifier
+                    ? "None"
+                    : identifier.ToString();
+            }
+
+            try
+            {
+                return RunModifierScript.TitleGet(identifier);
+            }
+            catch
+            {
+                return identifier.ToString();
+            }
+        }
+
+        private static string MemoryCardDescription(
+            RunModifierScript.Identifier identifier)
+        {
+            try
+            {
+                string description = RunModifierScript.DescriptionGet(identifier);
+                return TextMeshProSpriteTag.Replace(
+                    description,
+                    match => "[" + SplitPascalCase(match.Groups[1].Value) + "]");
+            }
+            catch
+            {
+                return identifier.ToString();
+            }
+        }
+
+        private static string SplitPascalCase(string value)
+        {
+            return Regex.Replace(value, "(?<!^)([A-Z])", " $1");
+        }
+
+        private static bool IsFusionMemoryCard(
+            RunModifierScript.Identifier identifier)
+        {
+            return (int)identifier >=
+                   (int)RunModifierScript.Identifier.Fusion_ViciousCicle;
+        }
+
         private void DrawSymbols()
         {
             Section("Symbol spawn weights");
@@ -940,37 +1149,6 @@ namespace CloverMod.UI
                 Run(ActionResult.Success(autoSlotMode ? "Auto mode enabled." : "Auto mode disabled."));
             }
             GUILayout.Label("Auto starts the next spin when the machine is ready. It is disabled by default and keeps the game's normal animations.", mutedStyle);
-
-            Section("Memory cards");
-            bool unlimited = GUILayout.Toggle(config.UnlimitedMemoryCards.Value, "Unlimited memory cards (prevent spending)");
-            if (unlimited != config.UnlimitedMemoryCards.Value)
-            {
-                config.UnlimitedMemoryCards.Value = unlimited;
-                Run(ActionResult.Success(unlimited ? "Unlimited memory cards enabled." : "Unlimited memory cards disabled."));
-            }
-
-            TextActionRow("Owned count", ref memoryCardsInput, "Set all", () =>
-            {
-                if (TryParseInt(memoryCardsInput, out int value))
-                {
-                    Run(actions.SetMemoryCardCounts(value));
-                }
-                else
-                {
-                    Invalid("Enter a whole-number memory-card count.");
-                }
-            });
-            TextActionRow("Win count", ref memoryWinsInput, "Set all", () =>
-            {
-                if (TryParseInt(memoryWinsInput, out int value))
-                {
-                    Run(actions.SetMemoryCardWins(value));
-                }
-                else
-                {
-                    Invalid("Enter a whole-number memory-card win count.");
-                }
-            });
 
             Section("Rounds and spins");
             TextActionRow("Extra rounds", ref extraRoundsInput, "Add", () =>

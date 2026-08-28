@@ -29,6 +29,7 @@ namespace CloverMod
         {
             Log = Logger;
             Settings = new ModConfig(Config);
+            MultipleMemoryCards.Initialize();
             qualityOfLife = new QualityOfLifeController(Settings, Logger);
             menu = new CloverMenu(new GameActions(Logger), Settings, Logger);
         }
